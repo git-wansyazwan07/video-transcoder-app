@@ -60,7 +60,7 @@ const Main = () => {
         });
 
         const progress = response.data.progress;
-        console.log(`Fetched progress: ${progress}%`); // Debugging line
+        //console.log(`Fetched progress: ${progress}%`); // Debugging line
 
         setTranscodingProgress(progress);
 
@@ -89,8 +89,8 @@ const Main = () => {
           backgroundColor: 'background.paper',
         }}
       >
-        <Typography variant="h4" component="h1" gutterBottom>
-          Main Screen
+        <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center' }}>
+          Video Transcoder App
         </Typography>
         <Box sx={{ mb: 2 }}>
           <Input
@@ -114,7 +114,7 @@ const Main = () => {
             <Typography variant="h6">Transcoding Progress</Typography>
             <LinearProgress
               variant="determinate"
-              value={transcodingProgress}
+              value={Number(transcodingProgress)}
               sx={{ mt: 2, mb: 1 }}
             />
             <Typography variant="body1">{transcodingProgress}%</Typography>
