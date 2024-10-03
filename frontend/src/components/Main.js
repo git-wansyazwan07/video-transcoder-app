@@ -1,9 +1,9 @@
-// src/components/Main.js
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import { Container, Box, Typography, Button, Input, LinearProgress } from '@mui/material';
+import { ApiUrlContext } from './ApiUrlContext'; // Import the context
+
 
 const Main = () => {
   const [file, setFile] = useState(null);
@@ -11,12 +11,21 @@ const Main = () => {
   const [transcodingProgress, setTranscodingProgress] = useState(0);
   const navigate = useNavigate();
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // Access the apiUrl from the context
+    const apiUrl = useContext(ApiUrlContext);
+
   useEffect(() => {
+    // Check if token exists in localStorage to determine if the user is logged in
     const token = localStorage.getItem('token');
+    //console.log('here is the token: ',token);
+    setIsLoggedIn(!!token); // Set to true if token exists, otherwise false
     if (!token) {
       navigate('/login');
     }
   }, [navigate]);
+  
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -30,19 +39,18 @@ const Main = () => {
 
     try {
       setIsTranscoding(true);
-
-      // Start polling for progress immediately
-      pollTranscodingProgress();
+      pollTranscodingProgress(); // Start polling for progress immediately
 
       // Initiate upload request
-      await axios.post('http://localhost:5000/api/upload', formData, {
+      const response = await fetch(`${apiUrl}/api/upload`, {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'multipart/form-data',
         },
+        body: formData,
       });
 
-      // Optionally handle upload completion here, if necessary
+      if (!response.ok) throw new Error('Upload failed');
     } catch (error) {
       console.error('Upload failed:', error);
       alert('Error uploading file');
@@ -53,15 +61,16 @@ const Main = () => {
   const pollTranscodingProgress = async () => {
     const intervalId = setInterval(async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/progress', {
+        const response = await fetch(`${apiUrl}/api/progress`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
 
-        const progress = response.data.progress;
-        //console.log(`Fetched progress: ${progress}%`); // Debugging line
+        if (!response.ok) throw new Error('Failed to fetch progress');
 
+        const data = await response.json();
+        const progress = data.progress;
         setTranscodingProgress(progress);
 
         if (progress >= 100) {
@@ -109,6 +118,7 @@ const Main = () => {
         >
           Upload and Transcode
         </Button>
+        <Typography variant="body1">Transcoded video will be available to download from the Gallery page</Typography>
         {isTranscoding && (
           <Box sx={{ mt: 4 }}>
             <Typography variant="h6">Transcoding Progress</Typography>

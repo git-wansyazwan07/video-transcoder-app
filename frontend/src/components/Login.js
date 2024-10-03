@@ -1,74 +1,54 @@
-// src/components/Login.js
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Container, Box, TextField, Button, Typography } from '@mui/material';
+import React from 'react';
+import { Container, Button, Box } from '@mui/material';
+import logo from './../logo2.jpeg'; // Make sure the path is correct
 
 const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
+    const clientId = '4v3dmnjicjlkjka7jft85bgsqf'; // Your Cognito App Client ID
+    const domain = 'n11725575-transcoder.auth.ap-southeast-2.amazoncognito.com';
+    const redirectUri = 'http://localhost:3000/';
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:5000/api/login', { email, password });
-            localStorage.setItem('token', response.data.token);
-            navigate('/');
-        } catch (error) {
-            console.error('Login failed:', error);
-            alert('Invalid credentials');
-        }
+    // Cognito login URL
+    const loginUrl = `https://${domain}/login?client_id=${clientId}&response_type=code&scope=email+openid+profile&redirect_uri=${redirectUri}`;
+
+    const handleCognitoLogin = () => {
+        window.location.href = loginUrl; // Redirect to Cognito login
     };
 
     return (
-        <Container maxWidth="xs">
-            <Box
+        <Container 
+            maxWidth="xs" 
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh'
+            }}
+        >
+            <Box 
                 sx={{
-                    mt: 8,
-                    p: 4,
-                    boxShadow: 3,
-                    borderRadius: 2,
-                    backgroundColor: 'background.paper',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center'
                 }}
             >
-                <Typography variant="h3" component="h1" gutterBottom sx={{ textAlign: 'center' }}>
-                    Video Transcoder App
-                </Typography>
-                <Typography variant="h4" component="h1" gutterBottom align="center">
-                    Login
-                </Typography>
-                <form onSubmit={handleLogin}>
-                    <TextField
-                        label="Email"
-                        type="email"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <TextField
-                        label="Password"
-                        type="password"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                        fullWidth
-                        sx={{ mt: 2 }}
-                    >
-                        Login
-                    </Button>
-                </form>
+                {/* Replace text with image */}
+                <img 
+                    src={logo} 
+                    alt="Transcoder App Logo" 
+                    style={{ width: '200px', height: 'auto', marginBottom: '20px' }} 
+                />
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    size="large" 
+                    onClick={handleCognitoLogin}
+                    sx={{ marginTop: 3 }}
+                >
+                    Log in
+                </Button>
             </Box>
         </Container>
     );
